@@ -11,6 +11,7 @@ print(" 1.Wanted to add student dails \n " \
 
 conn = sqlite3.connect("student.db")
 cur = conn.cursor()
+print("Database location:", os.path.abspath("student.db"))
 
 '''print(os.path.abspath("student.db"))
 cur.execute("""
@@ -242,35 +243,63 @@ while True:
             print("\n=====================================")
 
     elif choice==3:
-         
-         search_id =int(input("Enter student's ID:"))
 
-         cur.execute("Select status from attendance where student_id=?",(search_id,))
-         
-         record = cur.fetchone()
+        search_id = int(input("Enter student's ID: "))
 
-         if record is None:
-              print(f"Wrong input {search_id}")
+        # Check whether student exists
+        cur.execute("""
+            SELECT name
+            FROM students
+            WHERE student_id = ?
+        """, (search_id,))
 
-         else:
-        
-            attended_lectures = record[0]
+        student = cur.fetchone()
 
-            attendance=input("is the student was present today??:").lower()
-            
-            if attendance == "yes":
-                    attended_lectures += 1
-                    print("Thanks to enter the attendance behalf of the student")
-                    cur.execute("UPDATE attendance SET status = ? WHERE student_id = ?", (attended_lectures, search_id))
-                    conn.commit()
-                
-            elif attendance=="no":
-                    print("Student marked absent. Record remains unchanged.")
-                    cur.execute("UPDATE attendance SET status = ? WHERE student_id = ?", (attended_lectures,search_id))
-                    conn.commit()
+        if student is None:
+            print("Student not found!")
+            continue
 
-            else:
-                print("invalid input enter only yes or no!!!!!!!!!!!")
+        print(f"\nStudent: {student[0]}")
+
+        # Enter attendance date
+        attendance_date = input("Enter date (YYYY-MM-DD): ")
+
+        # Enter attendance status
+        attendance = input(
+            "Was the student present today? (yes/no): ").strip().lower()
+
+        if attendance == "yes":
+            status = "Present"
+
+        elif attendance == "no":
+            status = "Absent"
+
+        else:
+            print("Invalid input! Enter only yes or no.")
+            continue
+
+        # Check if attendance is already recorded for this date
+        cur.execute("""
+            SELECT attendance_id
+            FROM attendance
+            WHERE student_id = ? AND attendance_date = ?""", (search_id, attendance_date))
+
+        record = cur.fetchone()
+
+        if record:
+            print("Attendance for this date has already been recorded.")
+            continue
+
+        # Insert new attendance record
+        cur.execute("""
+            INSERT INTO attendance
+            (student_id, attendance_date, status)
+            VALUES (?, ?, ?)
+        """, (search_id, attendance_date, status))
+
+        conn.commit()
+
+        print(f"Attendance marked as {status} successfully.")
 
     elif choice == 4:
          

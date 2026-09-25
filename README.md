@@ -20,6 +20,6 @@ A Python-based Student Management System for managing student information and ac
 ```text
 Student-Management-System/
 │
-├── student_management.py
+├── STUDENT PROJECT version2.0.py
 ├── .gitignore
 └── README.md

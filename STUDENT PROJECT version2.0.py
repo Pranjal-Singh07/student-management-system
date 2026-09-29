@@ -302,39 +302,42 @@ while True:
         print(f"Attendance marked as {status} successfully.")
 
     elif choice == 4:
-         
-         search_id=int(input("Enter id of the student:"))
-
-         cur.execute("select fees from students where ID=?",(search_id,))
-         record = cur.fetchone()
-
-         if record is None:
-              print(f"Wrong input {search_id}")
-
-         else:
-                
-                A=input("Do you want to decrease or increase the fee? \n").lower()
-
-                if A == "increase":
-                        
-                        current_fee = record[0]
-
-                        amount_unpaid = float(input("Enter fee amount to pay/add: "))
-                        new_fees = current_fee + amount_unpaid
-
-                        cur.execute("Update students SET fees=? where id=?",(new_fees,search_id))
-                        conn.commit()
-
-                else:
-                        current_fee = record[0]
-
-                        amount_paid = float(input("Enter fee amount to payed: "))
-                        new_fees = current_fee - amount_paid
-                        
-                        cur.execute("Update students SET fees=? where id=?",(new_fees,search_id))
-                        conn.commit()
-
-         print("Thanks for the entries")
+    
+            search_id = int(input("Enter student's ID: "))
+    
+            cur.execute("""SELECT name FROM students WHERE student_id = ?""", (search_id,))
+            student = cur.fetchone()
+    
+            if student is None:
+                print("Student not found!")
+                continue
+    
+            print(f"\nStudent: {student[0]}")
+    
+            amount = float(input("Enter amount paid: ₹"))
+    
+            if amount <= 0:
+                print("Payment amount must be greater than 0.")
+                continue
+    
+            payment_date = input("Enter payment date (YYYY-MM-DD): ")
+    
+            payment_mode = input(
+                "Enter payment mode (Cash/UPI/Card): "
+            ).strip()
+    
+            if payment_mode.lower() not in ("cash", "upi", "card"):
+                print("Invalid payment mode!")
+                continue
+    
+            payment_mode = payment_mode.upper()
+    
+            cur.execute("""INSERT INTO payments (student_id, amount, payment_date, payment_mode) VALUES (?, ?, ?, ?)""", (search_id, amount, payment_date, payment_mode))
+    
+            conn.commit()
+    
+            print("\nPayment recorded successfully.")
+    
 
     elif choice==5:
          

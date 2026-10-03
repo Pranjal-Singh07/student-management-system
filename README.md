@@ -52,5 +52,5 @@ This project is actively being developed and improved. New features, bug fixes, 
 ## Author
 
 Pranjal Singh
-B.E. Computer Science & Engineering
+B.E. Information Technology
 
